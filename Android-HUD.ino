@@ -9,14 +9,22 @@ int sensorZ =0;
 
 
 U8GLIB_SSD1306_128X64 u8g(5, 4, 10, 2, 3);
-void draw(void) {
+void draw(int left, int right, int rounds) {
         // graphic commands to redraw the complete screen should be placed here
         u8g.setFont(u8g_font_unifont);
-        //u8g.setFont(u8g_font_osb21);
-        // u8g.drawStr( 0, 22, "");
-        u8g.drawCircle(64, 32, 16);
-        u8g.drawCircle(64, 32, 2);
-        u8g.drawTriangle(44, 12, 44, 48, 26, 30);
+        u8g.setFont(u8g_font_osb21);
+//        u8g.drawStr( 97, 1, "right");
+        
+        u8g.drawCircle(64, 32, 30);
+
+        u8g.drawFrame(1, 1, 30, 60);
+        u8g.drawFrame(97,1, 30, 60);
+
+        u8g.drawBox(1, 1, 30, 60-left);
+        u8g.drawBox(97,1, 30, 30-right);
+
+        u8g.drawDisc(64, 32, 30-rounds);
+          u8g.drawLine(32, rounds+10, 96, rounds+10);
 
 }
 
@@ -51,7 +59,7 @@ void loop(void) {
         // picture loop
         u8g.firstPage();
         do {
-                draw();
+                draw(sensorX, sensorY, sensorZ);
         } while( u8g.nextPage() );
 
         sensorX = analogRead (xAxis); // read the accelerometer
@@ -62,15 +70,17 @@ void loop(void) {
         sensorZ = constrain (sensorZ, 264, 400);    // the values returned for resting rotation through the range of motion are
                                                     // X [266-400] Y [263-395] z [264-395]  so 395 is 1g
 
-        sensorX = map (sensorX, 260, 400, 100, 240);    // analogWrite wants values from 0 - 255
-        sensorY = map (sensorY, 260, 400, 100, 255);    // so this keeps the values returned by analogRead (sensorXYZ)
-        sensorZ = map (sensorZ, 263, 401, 100, 255);    // from rolling over and making weird flashes
+        sensorX = map (sensorX, 260, 400, 0, 60);    // analogWrite wants values from 0 - 255
+        sensorY = map (sensorY, 260, 400, 0, 60);    // so this keeps the values returned by analogRead (sensorXYZ)
+        sensorZ = map (sensorZ, 263, 401, 0, 30);    // from rolling over and making weird flashes
 
         Serial.print(sensorX, DEC );    // this is unnecessary to the operation of the code
         Serial.print("\t");             // but it helps to figure out which colors are responding.
         Serial.print(sensorY, DEC  );
         Serial.print("\t");
         Serial.println(sensorZ, DEC  );
+    
+    
 
         // rebuild the picture after some delay
         delay(50);
